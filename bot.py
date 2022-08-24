@@ -1,4 +1,4 @@
-import telebot
+import telebot, random, time
 
 # Создаем экземпляр бота
 bot = telebot.TeleBot('5516639636:AAEUTCmuRKYxl25I9muyFHADWIHegKyyq-s')
@@ -9,12 +9,14 @@ players = ['Человек', "Бот"]
 signs = ['x', '0']
 flag = 0
 
+
 def ShowBoard(message):
     string = ""
     for i in pole:
         string += "".join(i) + '\n'
     bot.send_message(message.chat.id, string)
     bot.send_message(message.chat.id, "Ходит " + players[move] + ' (' + signs[move] + ').')
+    time.sleep(3)
 
 
 def Finish():
@@ -35,13 +37,16 @@ def Finish():
         1] == pole[2][
         0] == '0' or pole[2][0] == pole[2][1] == pole[2][2] == '0':
         return True
+    elif pole[0][0] != "*" and:
     return False
 
 
 def check_move(message):
-    x, y = map(int, message.split())
+    global move
+    x, y = map(int, message.text.split())
     if pole[x - 1][y - 1] == "*":
-        return True
+        pole[x - 1][y - 1] = signs[move]
+        move = (move + 1) % 2
 
 
 # Функция, обрабатывающая команду /start
@@ -52,24 +57,27 @@ def start(m, res=False):
 
 @bot.message_handler(commands=['play'])
 def play(message):
-    global flag
+    global flag, move
     flag = 1
     while not Finish():
-        global move
         ShowBoard(message)
         if move % 2 == 0:
-            bot.send_message(message.chat.id, 'Введите координаты')
-        if check_move(a - 1, b - 1):
-            pole[a - 1][b - 1] = signs[move]
-            move = (move + 1) % 2
-    print('Победил ' + players[(move + 1) % 2] + '!')
-
-
-# Получение сообщений от юзера
-@bot.message_handler(content_types=["text"])
-def handle_text(message):
-    if flag == 1:
-        bot.register_next_step_handler(bot.send_message(message.chat.id, 'Введите координаты'), play)
+            send = bot.send_message(message.chat.id, 'Введите координаты')
+            bot.register_next_step_handler(send, check_move)
+            bot.send_message(message.chat.id, 'У вас 10 секунд')
+            sec = 0
+            while sec < 11:
+                if sec > 7:
+                    bot.send_message(message.chat.id, 'У вас осталось ' + str(11 - sec))
+                time.sleep(1)
+                sec += 1
+        else:
+            x, y = random.choice([0, 1, 2]), random.choice([0, 1, 2])
+            if pole[x][y] == "*":
+                pole[x][y] = "0"
+                move = (move + 1) % 2
+    ShowBoard(message)
+    bot.send_message(message.chat.id, 'Победил ' + players[(move + 1) % 2] + '!')
 
 
 # Запускаем бота
