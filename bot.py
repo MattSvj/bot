@@ -37,8 +37,8 @@ def Finish():
         1] == pole[2][
         0] == '0' or pole[2][0] == pole[2][1] == pole[2][2] == '0':
         return True
-    elif pole[0][0] != "*" and:
-    return False
+    elif pole[0][0] != "*" and pole[0][1] != "*" and pole[0][2] != "*" and pole[1][0] != "*" and pole[2][0] != "*" and pole[1][1] != "*" and pole[2][2] != "*" and pole[1][2] != "*" and pole[2][1] != "*":
+        return False
 
 
 def check_move(message):
